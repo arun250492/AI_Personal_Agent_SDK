@@ -15,7 +15,7 @@ setup(
     description="AI Personal Agent SDK for automation with OpenAI, Zapier, and security features",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/ai-personal-agent-sdk",
+    url="https://github.com/arun250492/AI_Personal_Agent_SDK",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 3 - Alpha",

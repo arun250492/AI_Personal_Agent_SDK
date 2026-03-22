@@ -40,9 +40,9 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/ai-personal-agent-sdk"
-Repository = "https://github.com/yourusername/ai-personal-agent-sdk"
-Issues = "https://github.com/yourusername/ai-personal-agent-sdk/issues"
+Homepage = "https://github.com/arun250492/AI_Personal_Agent_SDK"
+Repository = "https://github.com/arun250492/AI_Personal_Agent_SDK"
+Issues = "https://github.com/arun250492/AI_Personal_Agent_SDK/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
