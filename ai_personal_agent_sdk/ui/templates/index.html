@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Personal Agent</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.9);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        .message {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .message.user {
+            background: #667eea;
+            color: white;
+            text-align: right;
+        }
+        .message.bot {
+            background: white;
+            border: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center text-white mb-4">
+                    <i class="fas fa-robot me-2"></i>AI Personal Agent
+                </h1>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Dashboard -->
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Today's Meetings</h6>
+                                <div id="meetings-list" class="mb-3">
+                                    <div class="text-muted">Loading...</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Active Permissions</h6>
+                                <div id="permissions-count" class="mb-3">
+                                    <div class="text-muted">Loading...</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <h6>Daily Plan</h6>
+                                <div id="daily-plan" class="alert alert-info">
+                                    <div class="text-muted">Loading...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Chat -->
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5><i class="fas fa-comments me-2"></i>AI Assistant</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="chat-messages" class="chat-messages mb-3"></div>
+                        <div class="input-group">
+                            <input type="text" id="chat-input" class="form-control" placeholder="Ask me anything...">
+                            <button class="btn btn-primary" onclick="sendMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-md-4">
+                <!-- Alarms -->
+                <div class="card mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5><i class="fas fa-clock me-2"></i>Alarms</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="alarms-list" class="mb-3">
+                            <div class="text-muted">No alarms set</div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#alarmModal">
+                            <i class="fas fa-plus me-1"></i>Add Alarm
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Automations -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5><i class="fas fa-magic me-2"></i>Automations</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-sm btn-outline-primary" onclick="runAutomation('email')">
+                                <i class="fas fa-envelope me-1"></i>Email Assistant
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="runAutomation('calendar')">
+                                <i class="fas fa-calendar me-1"></i>Schedule Meeting
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="runAutomation('social')">
+                                <i class="fas fa-share me-1"></i>Social Post
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Permissions -->
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5><i class="fas fa-shield-alt me-2"></i>Permissions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="permissions-list">
+                            <div class="text-muted">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alarm Modal -->
+    <div class="modal fade" id="alarmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Alarm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Time</label>
+                        <input type="time" id="alarm-time" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message</label>
+                        <input type="text" id="alarm-message" class="form-control" placeholder="Alarm message">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addAlarm()">Add Alarm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Load dashboard data
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/dashboard');
+                const data = await response.json();
+
+                // Update meetings
+                const meetingsList = document.getElementById('meetings-list');
+                if (data.meetings.length > 0) {
+                    meetingsList.innerHTML = data.meetings.map(meeting =>
+                        `<div class="alert alert-light py-2 mb-1">
+                            <strong>${meeting.summary}</strong><br>
+                            <small>${new Date(meeting.start).toLocaleString()}</small>
+                        </div>`
+                    ).join('');
+                } else {
+                    meetingsList.innerHTML = '<div class="text-muted">No meetings today</div>';
+                }
+
+                // Update permissions count
+                document.getElementById('permissions-count').innerHTML =
+                    `<div class="h4 text-primary">${data.permissions}</div>Active permissions`;
+
+                // Update daily plan
+                const dailyPlan = document.getElementById('daily-plan');
+                if (data.daily_plan) {
+                    dailyPlan.innerHTML = data.daily_plan.replace(/\n/g, '<br>');
+                } else {
+                    dailyPlan.innerHTML = '<div class="text-muted">Daily plan not available</div>';
+                }
+
+                // Update alarms
+                updateAlarms();
+
+            } catch (error) {
+                console.error('Failed to load dashboard:', error);
+            }
+        }
+
+        // Update alarms list
+        async function updateAlarms() {
+            try {
+                const response = await fetch('/api/alarms');
+                const data = await response.json();
+
+                const alarmsList = document.getElementById('alarms-list');
+                if (data.alarms.length > 0) {
+                    alarmsList.innerHTML = data.alarms.map(alarm =>
+                        `<div class="alert alert-warning py-2 mb-1">
+                            <strong>${alarm.time}</strong>: ${alarm.message}
+                        </div>`
+                    ).join('');
+                } else {
+                    alarmsList.innerHTML = '<div class="text-muted">No alarms set</div>';
+                }
+            } catch (error) {
+                console.error('Failed to load alarms:', error);
+            }
+        }
+
+        // Send chat message
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                const data = await response.json();
+                addMessage(data.response || data.error, 'bot');
+            } catch (error) {
+                addMessage('Sorry, I encountered an error.', 'bot');
+            }
+        }
+
+        function addMessage(text, type) {
+            const messages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = text.replace(/\n/g, '<br>');
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // Add alarm
+        async function addAlarm() {
+            const time = document.getElementById('alarm-time').value;
+            const message = document.getElementById('alarm-message').value;
+
+            if (!time || !message) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                await fetch('/api/alarms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ time, message })
+                });
+
+                bootstrap.Modal.getInstance(document.getElementById('alarmModal')).hide();
+                updateAlarms();
+                document.getElementById('alarm-time').value = '';
+                document.getElementById('alarm-message').value = '';
+            } catch (error) {
+                alert('Failed to add alarm');
+            }
+        }
+
+        // Run automation
+        async function runAutomation(type) {
+            try {
+                const response = await fetch('/api/automations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type })
+                });
+                const result = await response.json();
+                alert(result.status === 'success' ? 'Automation executed successfully' : 'Automation failed');
+            } catch (error) {
+                alert('Failed to run automation');
+            }
+        }
+
+        // Enter key for chat
+        document.getElementById('chat-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Load data on page load
+        loadDashboard();
+        setInterval(loadDashboard, 30000); // Refresh every 30 seconds
+    </script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+include README.md
+include LICENSE
+include requirements.txt
+recursive-include ai_personal_agent_sdk/ui/templates *
+recursive-include ai_personal_agent_sdk/ui/static *
